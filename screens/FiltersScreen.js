@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, StyleSheet, Switch, Platform } from 'react-native';
-import { CATEGORIES } from '../data/dummy-data';
+import { useDispatch  } from 'react-redux';
 import HeaderButton from '../components/HeaderButton';
-import CategoryGridTile from '../components/CategoryGridTile';
 import { HeaderButtons, Item } from 'react-navigation-header-buttons';
 import Color from '../constants/colors';
+import { setFilters } from '../store/actions/meals';
 
 // separate component for filter items
 const FilterSwitch = props => {
@@ -30,6 +30,8 @@ const FiltersScreen = props => {
     const [isVegan, setIsVegan] = useState(false);
     const [isVegetarian, setIsVegetarian] = useState(false);
 
+    const dispatch = useDispatch();
+
     // used to pass filter data from nav to component
     const saveFilters = useCallback(() => {
         const appliedFilters ={
@@ -38,12 +40,13 @@ const FiltersScreen = props => {
             vegan: isVegan,
             vegetarian: isVegetarian
         };
-        console.log(appliedFilters);
-    }, [isGlutenFree, isLactoseFree, isVegetarian, isVegan]); // saveFilters is only recreated when these dependencies change
+
+        dispatch(setFilters(appliedFilters)); // dispatch triggers action and changes state
+    }, [isGlutenFree, isLactoseFree, isVegetarian, isVegan, dispatch]); // saveFilters is only recreated when these dependencies change
 
     useEffect(() => {
         props.navigation.setParams({save: saveFilters});
-}, [saveFilters]); // these two parameteres ensure saveFilters is called whenever navigation props change, not all props
+    }, [saveFilters]); // useEffect is dependent on saveFilters
 
     return (
         <View style={styles.screen}>
